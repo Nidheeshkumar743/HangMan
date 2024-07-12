@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Save me!!</title>
+        <style>
+      @import url("https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700&family=Inter:wght@400;500;700&family=Play:wght@400;700&family=Rubik:wght@400;600&display=swap");
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(to bottom, #141e30, #243b55);
+        font-family: "Gabarito", cursive;
+        animation: backgroundAnimation 5s infinite alternate;
+      }
+
+      @keyframes backgroundAnimation {
+        0% {
+          background: linear-gradient(to bottom, #141e30, #243b55);
+        }
+        100% {
+          background: linear-gradient(to bottom, #232526, #414345);
+        }
+      }
+
+      .container {
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        width: 700px;
+        height: auto;
+      }
+
+      h1 {
+        font-size: 48px;
+        margin-bottom: 20px;
+        color: #e0e0e0;
+        animation: textGlow 1.5s infinite alternate;
+      }
+
+      @keyframes textGlow {
+        0% {
+          text-shadow: 0 0 10px #e0e0e0, 0 0 20px #3498db, 0 0 30px #3498db;
+        }
+        100% {
+          text-shadow: 0 0 20px #e0e0e0, 0 0 30px #3498db, 0 0 40px #3498db;
+        }
+      }
+
+      .hangman img {
+        width: 200px;
+        height: 200px;
+        border: 3px solid #3498db;
+        animation: imageAnimation 1s infinite alternate;
+      }
+
+
+
+      .word-display {
+        margin: 20px 0;
+        font-size: 36px;
+        letter-spacing: 10px;
+        color: #e0e0e0;
+        animation: wordDisplayAnimation 1s infinite alternate;
+      }
+
+      @keyframes wordDisplayAnimation {
+        0% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(1.05);
+        }
+      }
+
+      .input-container {
+        margin-bottom: 20px;
+      }
+
+      label {
+        font-size: 18px;
+        color: #3498db;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        font-size: 18px;
+        border: 2px solid #3498db;
+        border-radius: 10px;
+        margin: 0 10px;
+        background-color: #e0e0e0;
+        color: #000;
+      }
+
+      button {
+        padding: 10px 25px;
+        font-size: 18px;
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        margin: 5px;
+      }
+
+      button:hover {
+        background-color: #1abc9c;
+        transform: scale(1.1);
+      }
+
+      .lives {
+        font-size: 24px;
+        font-weight: bold;
+        color: #e74c3c;
+      }
+
+      .clue {
+        font-size: 18px;
+        font-style: italic;
+        color: #ffeb3b;
+        margin-top: 10px;
+        animation: clueAnimation 1s infinite alternate;
+      }
+
+      @keyframes clueAnimation {
+        0% {
+          opacity: 0.8;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Play Again button styles */
+      .play-again-button {
+        padding: 10px 25px;
+        font-size: 18px;
+        background-color: #e91e63;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        margin-top: 20px;
+      }
+
+      .play-again-button:hover {
+        background-color: #c2185b;
+        transform: scale(1.1);
+      }
+
+      /* Used Letters container styles */
+      .used-letters {
+        margin-top: 20px;
+        color: #fff;
+      }
+
+      .used-letters h2 {
+        color: #3498db;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Don't Hang Me!!</h1>
+      <div class="hangman">
+        <img id="hangman-image" src="hangman6.PNG" alt="Hangman" />
+      </div>
+
+      <div class="word-display" id="wordDisplay"></div>
+      <div class="clue" id="clueDisplay"></div>
+      <div class="input-container">
+        <label for="letterInput">Enter a letter:</label>
+        <input type="text" id="letterInput" maxlength="1" />
+        <button onclick="checkLetter()" id="guessButton">Guess</button>
+      </div>
+      <div class="lives" id="lives">Lives: 6</div>
+
+      <!-- Used Letters container -->
+      <div class="used-letters">
+        <h2>Used Letters</h2>
+        <div id="usedLetters"></div>
+      </div>
+
+      <!-- Hint button -->
+      <button id="hintButton" onclick="provideHint()">Hint</button>
+
+      <!-- Play Again button -->
+      <button class="play-again-button" onclick="playAgain()">
+        Play Again
+      </button>
+    </div>
+
+    <script>
+      let words = [
+        "hangman",
+        "javascript",
+        "programming",
+        "computer",
+        "developer",
+        "internet",
+        "openai",
+      ];
+      let clues = [
+        "A classic word guessing game.",
+        "A popular programming language.",
+        "The process of writing code.",
+        "A machine used for computation.",
+        "A person who writes software.",
+        "A global network of connected devices.",
+        "An AI research and deployment company.",
+      ];
+      let randomIndex = Math.floor(Math.random() * words.length);
+      let randomWord = words[randomIndex];
+      let randomClue = clues[randomIndex];
+      let randomWordLength = randomWord.length;
+      let lives = 6;
+      let display = Array(randomWordLength).fill("_");
+      let usedLetters = [];
+      let hintsGiven = 0;
+
+      function updateDisplay() {
+        document.getElementById("wordDisplay").textContent = display.join(" ");
+        document.getElementById("clueDisplay").textContent = `Clue: ${randomClue}`;
+      }
+
+      function updateLives() {
+        document.getElementById("lives").textContent = `Lives: ${lives}`;
+      }
+
+      function updateHangmanImage() {
+        if (lives > 0) {
+          document.getElementById("hangman-image").src = `hangman${6 - lives}.PNG`;
+        } else {
+          document.getElementById("hangman-image").src = "hangman0.PNG";
+        }
+      }
+
+      function updateUsedLetters() {
+        document.getElementById("usedLetters").textContent = usedLetters.join(", ");
+      }
+
+      function clearInput() {
+        document.getElementById("letterInput").value = "";
+      }
+
+      function disableButtons() {
+        document.getElementById("guessButton").disabled = true;
+        document.getElementById("hintButton").disabled = true;
+      }
+
+      function enableButtons() {
+        document.getElementById("guessButton").disabled = false;
+        document.getElementById("hintButton").disabled = false;
+      }
+
+      function startGame() {
+        randomIndex = Math.floor(Math.random() * words.length);
+        randomWord = words[randomIndex];
+        randomClue = clues[randomIndex];
+        randomWordLength = randomWord.length;
+        lives = 6;
+        display = Array(randomWordLength).fill("_");
+        updateDisplay();
+        updateLives();
+        document.getElementById("hangman-image").src = "hangman6.PNG";
+        usedLetters = [];
+        updateUsedLetters();
+        clearInput();
+        document.getElementById("letterInput").disabled = false;
+        hintsGiven = 0;
+        enableButtons();
+      }
+
+      startGame();
+
+      function checkLetter() {
+        const letterInput = document.getElementById("letterInput").value.toLowerCase();
+        if (letterInput.length !== 1 || !letterInput.match(/[a-z]/)) {
+          alert("Please enter a valid single letter.");
+          clearInput();
+          return;
+        }
+
+        if (usedLetters.includes(letterInput)) {
+          alert("You already guessed this letter.");
+          clearInput();
+          return;
+        }
+
+        let letterFound = false;
+        for (let position = 0; position < randomWordLength; position++) {
+          if (randomWord[position] === letterInput) {
+            display[position] = letterInput;
+            letterFound = true;
+          }
+        }
+
+        if (!letterFound) {
+          lives--;
+          updateLives();
+          updateHangmanImage();
+          if (lives === 0) {
+            document.body.style.background = "linear-gradient(to right, #ff0000, #000000)";
+            document.querySelector("h1").textContent = "I am hanged";
+            document.getElementById("letterInput").disabled = true;
+            disableButtons();
+            return;
+          }
+        }
+
+        usedLetters.push(letterInput);
+        updateUsedLetters();
+        updateDisplay();
+
+        if (!display.includes("_")) {
+          alert("Congratulations! You guessed the word.");
+          startGame();
+        }
+
+        clearInput();
+      }
+
+      document.getElementById("letterInput").addEventListener("keyup", function (event) {
+        if (event.key === "Enter") {
+          checkLetter();
+        }
+      });
+
+      function provideHint() {
+        if (hintsGiven < 2) {
+          let hintIndex;
+          do {
+            hintIndex = Math.floor(Math.random() * randomWordLength);
+          } while (display[hintIndex] !== "_");
+
+          display[hintIndex] = randomWord[hintIndex];
+          updateDisplay();
+          hintsGiven++;
+        } else {
+          alert("It's time to start using your brain!");
+          document.getElementById("hintButton").disabled = true;
+        }
+      }
+
+      function playAgain() {
+        document.body.style.background = "linear-gradient(to bottom, #222, #444)";
+        document.querySelector("h1").textContent = "Don't Hang Me!!";
+        document.getElementById("hangman-image").src = "hangman6.PNG";
+        startGame();
+        enableButtons();
+      }
+    </script>
+  </body>
+</html>
